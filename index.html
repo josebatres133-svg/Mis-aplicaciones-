@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secretaria IA - Servicios de Limpieza</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #e0e0e0;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #2a5298;
+        }
+        .header h1 { color: white; font-size: 1.8em; margin-bottom: 5px; }
+        .header p { color: #b0b0b0; font-size: 0.9em; }
+        
+        /* Config Section */
+        .config-section {
+            background: rgba(20, 20, 40, 0.9);
+            border: 1px solid #2a9aff;
+            padding: 15px;
+            margin: 15px auto 0;
+            max-width: 1600px;
+            width: calc(100% - 30px);
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 900px) {
+            .config-section { grid-template-columns: 1fr; }
+        }
+        .api-key-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        .api-key-group label { color: #2a9aff; font-weight: bold; font-size: 0.9em;}
+        .api-key-group input { 
+            padding: 10px;
+            border: 1px solid #333;
+            background: rgba(40, 40, 60, 0.9);
+            color: #e0e0e0;
+            border-radius: 6px;
+        }
+        .api-key-group input:focus { border-color: #2a9aff; outline: none;}
+        .api-key-help { font-size: 0.8em; color: #888;}
+        
+        .btn-google {
+            background: white;
+            color: #444;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+            transition: all 0.2s;
+        }
+        .btn-google:hover { background: #f0f0f0; }
+        .btn-google:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 15px;
+            padding: 15px;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        @media (max-width: 1200px) { .container { grid-template-columns: 1fr; } }
+        
+        .panel {
+            background: rgba(20, 20, 40, 0.9);
+            border: 1px solid #2a5298;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+            max-height: 80vh;
+        }
+        .panel h2 {
+            color: #2a9aff;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        /* CHAT */
+        .chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: rgba(10, 10, 30, 0.8);
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            line-height: 1.4;
+            font-size: 0.9em;
+            max-width: 85%;
+            white-space: pre-wrap;
+        }
+        .message.user {
+            background: rgba(42, 82, 152, 0.3);
+            color: #e0e0e0;
+            align-self: flex-end;
+            border-right: 3px solid #2a5298;
+        }
+        .message.assistant {
+            background: rgba(60, 100, 180, 0.2);
+            border-left: 3px solid #2a9aff;
+            color: #b0d0ff;
+            align-self: flex-start;
+        }
+        .message.system {
+            background: rgba(100, 150, 80, 0.2);
+            border-left: 3px solid #64c864;
+            color: #64c864;
+            font-size: 0.85em;
+            align-self: center;
+            text-align: center;
+            width: 100%;
+        }
+        .input-group { display: flex; gap: 8px; }
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #333;
+            background: rgba(40, 40, 60, 0.9);
+            color: #e0e0e0;
+            border-radius: 6px;
+        }
+        .input-group input:focus { outline: none; border-color: #2a9aff; }
+        .input-group button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #2a5298 0%, #2a9aff 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .input-group button:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        /* LISTAS */
+        .scrollable { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; flex: 1; padding-right: 5px;}
+        .item-card {
+            background: rgba(40, 40, 60, 0.9);
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.9em;
+        }
+        .item-card:hover { border-color: #2a5298; }
+        .client-item { cursor: pointer; }
+        .client-item.active { background: rgba(42, 82, 152, 0.3); border-color: #2a9aff; }
+        .item-title { color: #2a9aff; font-weight: 600; margin-bottom: 3px; }
+        .item-sub { color: #888; font-size: 0.85em; }
+        
+        .task-item { border-left: 3px solid #64c864; position: relative; }
+        .task-item.due-soon { border-left-color: #ff9800; }
+        .task-item.overdue { border-left-color: #ff6b6b; }
+        .btn-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        
+        .btn-full {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #2a5298 0%, #2a9aff 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .tabs { display: flex; gap: 5px; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .tab-btn {
+            padding: 6px 10px;
+            background: transparent;
+            color: #888;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            font-size: 0.85em;
+        }
+        .tab-btn.active { color: #2a9aff; border-bottom-color: #2a9aff; }
+        .tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+        .tab-content.active { display: flex; }
+
+        /* CALCULADORA */
+        .calc-section {
+            background: rgba(30, 30, 50, 0.8);
+            border: 1px solid #444;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .calc-title {
+            color: #2a9aff; font-size: 0.9em; font-weight: bold;
+            margin-bottom: 10px; border-bottom: 1px dashed #444; padding-bottom: 5px;
+        }
+        .calc-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; font-size: 0.85em; color: #e0e0e0;
+        }
+        .calc-row input[type="number"] {
+            width: 50px; padding: 4px; background: rgba(10, 10, 30, 0.8);
+            border: 1px solid #555; color: white; border-radius: 4px; text-align: center;
+        }
+        .calc-row input[type="number"]:focus { border-color: #2a9aff; outline: none; }
+        .calc-check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .calc-check input { cursor: pointer; accent-color: #2a9aff; }
+        .calc-price-badge { color: #64c864; font-size: 0.9em; font-weight: bold; }
+        .calc-total-box {
+            background: rgba(42, 82, 152, 0.3); border: 1px solid #2a9aff;
+            padding: 15px; border-radius: 8px; text-align: center; margin-top: 10px;
+        }
+        .calc-total-title { color: #b0d0ff; font-size: 0.9em; margin-bottom: 5px; }
+        .calc-total-amount { color: white; font-size: 2em; font-weight: bold; }
+        
+        /* MODAL */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: rgba(20, 20, 40, 0.95); border: 2px solid #2a5298;
+            border-radius: 10px; padding: 20px; width: 90%; max-width: 500px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; color: #b0b0b0; font-size: 0.9em; margin-bottom: 5px; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #333;
+            background: rgba(40, 40, 60, 0.9); color: #e0e0e0; border-radius: 6px;
+        }
+        .modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .modal-buttons button { padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-cancel { background: rgba(100, 100, 120, 0.3); color: #b0b0b0; border: 1px solid #444; }
+        
+        .scrollable::-webkit-scrollbar { width: 6px; }
+        .scrollable::-webkit-scrollbar-track { background: rgba(40, 40, 60, 0.5); }
+        .scrollable::-webkit-scrollbar-thumb { background: #2a5298; border-radius: 3px; }
+    </style>
+    <!-- Script de Google API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Asistente Secretario IA + Cotizador</h1>
+        <p>Gestiona clientes, agenda citas y cotiza limpiezas automáticamente</p>
+    </div>
+
+    <!-- CONFIGURACIÓN DE APIS -->
+    <div class="config-section">
+        <div class="api-key-group">
+            <label>🔑 API Key de Gemini (Inteligencia Artificial):</label>
+            <input type="password" id="geminiApiKey" placeholder="Pega tu API Key de Gemini...">
+            <div class="api-key-help">Para que el asistente piense, agende y cotice.</div>
+        </div>
+        <div class="api-key-group">
+            <label>📅 Client ID de Google (Para el Calendario):</label>
+            <input type="password" id="googleClientId" placeholder="Ej: 12345678-abcde.apps.googleusercontent.com">
+            <button class="btn-google" id="btnConnectGoogle" onclick="connectGoogleCalendar()">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Conectar con Google Calendar
+            </button>
+            <div class="api-key-help" id="googleStatus">Crea tu Client ID en Google Cloud Console.</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- CLIENTES -->
+        <div class="panel">
+            <h2>👥 Clientes</h2>
+            <div class="scrollable" id="clientsList"></div>
+            <button class="btn-full" onclick="openAddClientModal()">+ Nuevo Cliente</button>
+        </div>
+
+        <!-- CHAT -->
+        <div class="panel">
+            <h2>💬 Asistente IA</h2>
+            <div class="chat-container">
+                <div class="messages" id="messages"></div>
+                <div class="input-group">
+                    <input type="text" id="userInput" placeholder="Ej: 'Cotiza una limpieza de 3 cuartos y 2 baños'..." onkeypress="if(event.key=='Enter') sendMessage()">
+                    <button onclick="sendMessage()" id="sendBtn">Enviar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAREAS, CITAS Y CALCULADORA -->
+        <div class="panel">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('tasks')">📅 Tareas</button>
+                <button class="tab-btn" onclick="switchTab('meetings')">📞 Citas</button>
+                <button class="tab-btn" onclick="switchTab('calculator')">💰 Cotizador</button>
+            </div>
+            
+            <div id="tasks" class="tab-content active">
+                <div class="scrollable" id="tasksList"></div>
+            </div>
+            
+            <div id="meetings" class="tab-content">
+                <div class="scrollable" id="meetingsList"></div>
+            </div>
+
+            <!-- CALCULADORA DE LIMPIEZA INTEGRADA -->
+            <div id="calculator" class="tab-content">
+                <div class="scrollable">
+                    <form id="calcForm">
+                        <!-- Áreas -->
+                        <div class="calc-section">
+                            <div class="calc-title">🏠 Áreas de la Casa (+$25 c/u)</div>
+                            <div class="calc-row"><label>Dormitorios</label><input type="number" id="calc_dormitorios" min="0" placeholder="0"></div>
+                            <div class="calc-row"><label>Baños</label><input type="number" id="calc_banos" min="0" placeholder="0"></div>
+                            <div class="calc-row"><label>Cocinas</label><input type="number" id="calc_cocina" min="0" placeholder="0"></div>
+                            <div class="calc-row"><label>Salas</label><input type="number" id="calc_sala" min="0" placeholder="0"></div>
+                            <div class="calc-row" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
+                                <label>Ventanas Extras <span class="calc-price-badge">+$5</span></label><input type="number" id="calc_ventanas" min="0" placeholder="0">
+                            </div>
+                        </div>
+
+                        <!-- Extras -->
+                        <div class="calc-section">
+                            <div class="calc-title">✨ Servicios Extras</div>
+                            <label class="calc-check calc-row"><input type="checkbox" id="calc_refrigeradora"> Refrigeradora <span class="calc-price-badge">+$25</span></label>
+                            <label class="calc-check calc-row"><input type="checkbox" id="calc_horno"> Horno <span class="calc-price-badge">+$25</span></label>
+                            <label class="calc-check calc-row"><input type="checkbox" id="calc_gabinetes"> Gabinetes <span class="calc-price-badge">+$50</span></label>
+                            <label class="calc-check calc-row"><input type="checkbox" id="calc_mascotas"> Mascotas <span class="calc-price-badge">+$15</span></label>
+                            <label class="calc-check calc-row" style="margin-top: 5px; border-top: 1px solid #444; padding-top: 5px;">
+                                <input type="checkbox" id="calc_mudanza"> Mudanza (Deep Clean) <span class="calc-price-badge" style="color:#2a9aff;">+20%</span>
+                            </label>
+                        </div>
+
+                        <!-- Tamaño y Frecuencia -->
+                        <div class="calc-section">
+                            <div class="calc-title">📏 Ajuste por Tamaño</div>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_tamano" value="1.0" checked> Estándar</label>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_tamano" value="1.1"> Pequeña (+10%)</label>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_tamano" value="1.15"> Mediana (+15%)</label>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_tamano" value="1.2"> Grande (+20%)</label>
+                            
+                            <div class="calc-title" style="margin-top: 15px;">📅 Frecuencia (Descuento)</div>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_descuento" value="0" checked> Una Sola Vez</label>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_descuento" value="5"> Mensual (-5%)</label>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_descuento" value="10"> Quincenal (-10%)</label>
+                            <label class="calc-check calc-row"><input type="radio" name="calc_descuento" value="15"> Semanal (-15%)</label>
+                        </div>
+                    </form>
+                    
+                    <div class="calc-total-box">
+                        <div class="calc-total-title">Total Estimado</div>
+                        <div class="calc-total-amount" id="calc_resultado">$0.00</div>
+                    </div>
+                    <button class="btn-cancel" style="width: 100%; margin-top: 10px;" onclick="resetCalculator()">Limpiar Calculadora</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AGREGAR CLIENTE -->
+    <div class="modal" id="addClientModal">
+        <div class="modal-content">
+            <h3>Nuevo Cliente</h3>
+            <div class="form-group"><label>Nombre:</label><input type="text" id="clientName"></div>
+            <div class="form-group"><label>Email:</label><input type="email" id="clientEmail"></div>
+            <div class="form-group"><label>Teléfono:</label><input type="tel" id="clientPhone"></div>
+            <div class="form-group"><label>Detalles de su casa/preferencias:</label><textarea id="clientDetails"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn-full" style="margin:0;" onclick="saveClient()">Guardar</button>
+                <button class="btn-cancel" onclick="closeAddClientModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ESTADO GLOBAL
+        let clients = [];
+        let tasks = [];
+        let meetings = [];
+        let currentClient = null;
+        let tokenClient;
+        let googleAccessToken = null;
+
+        // INICIALIZACIÓN
+        window.addEventListener('load', () => {
+            const savedGemini = localStorage.getItem('geminiApiKeySecretary');
+            const savedGoogle = localStorage.getItem('googleClientId');
+            if (savedGemini) document.getElementById('geminiApiKey').value = savedGemini;
+            if (savedGoogle) document.getElementById('googleClientId').value = savedGoogle;
+
+            loadData();
+            renderClients();
+            renderTasks();
+            renderMeetings();
+            initCalculator();
+            
+            // INTENTO DE AUTO-RECONEXIÓN SILENCIOSA A GOOGLE CALENDAR
+            if (savedGoogle) {
+                initGoogleSilencioso(savedGoogle);
+            }
+            
+            addSystemMessage("¡Hola! Soy tu asistente. Si diste permiso a Calendar antes, me reconectaré automáticamente en unos segundos. Si no, dale al botón de conectar.");
+        });
+
+        function getKeys() {
+            const gemini = document.getElementById('geminiApiKey').value.trim();
+            const google = document.getElementById('googleClientId').value.trim();
+            if (gemini) localStorage.setItem('geminiApiKeySecretary', gemini);
+            if (google) localStorage.setItem('googleClientId', google);
+            return { gemini, google };
+        }
+
+        // ================= GOOGLE CALENDAR =================
+        function initGoogleSilencioso(clientId) {
+            // Intenta obtener el token sin mostrar ventanas emergentes, asumiendo que ya hay permiso
+            try {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: clientId,
+                    scope: 'https://www.googleapis.com/auth/calendar.events',
+                    callback: (response) => {
+                        if (response.error) {
+                            console.log("No se pudo autoconectar. El usuario debe hacer clic en el botón.");
+                            return;
+                        }
+                        googleAccessToken = response.access_token;
+                        actualizarUIGoogleConectado();
+                    },
+                });
+                // Pedimos el token pero sin forzar que el usuario interactúe (en algunos navegadores funciona directo)
+                tokenClient.requestAccessToken({prompt: ''}); 
+            } catch (e) {
+                console.log("Esperando interacción manual del usuario.");
+            }
+        }
+
+        function connectGoogleCalendar() {
+            const keys = getKeys();
+            if (!keys.google) return alert("Por favor, pega tu Client ID de Google en la parte superior.");
+            
+            try {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: keys.google,
+                    scope: 'https://www.googleapis.com/auth/calendar.events',
+                    callback: (response) => {
+                        if (response.error) { 
+                            addSystemMessage("❌ Error Google: " + response.error); 
+                            return; 
+                        }
+                        googleAccessToken = response.access_token;
+                        actualizarUIGoogleConectado();
+                    },
+                });
+                tokenClient.requestAccessToken({prompt: 'consent'}); // Aquí sí forzamos la ventana
+            } catch (e) { 
+                addSystemMessage("❌ Error iniciando Google Auth."); 
+            }
+        }
+
+        function actualizarUIGoogleConectado() {
+            const btn = document.getElementById('btnConnectGoogle');
+            const status = document.getElementById('googleStatus');
+            btn.innerHTML = "✅ Conectado a Calendar";
+            btn.disabled = true;
+            status.innerText = "Conexión activa con tu Calendario.";
+            status.style.color = "#64c864";
+            addSystemMessage("✅ ¡Enlazado con Google Calendar exitosamente! Todo lo que pidas agendar se irá a tu calendario.");
+        }
+
+        async function createEventInGoogleCalendar(title, dateStr, description) {
+            if (!googleAccessToken) return false;
+            const startTime = new Date(dateStr);
+            const endTime = new Date(startTime.getTime() + (60 * 60 * 1000));
+            const event = {
+                'summary': title, 'description': description,
+                'start': { 'dateTime': startTime.toISOString(), 'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone },
+                'end': { 'dateTime': endTime.toISOString(), 'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone }
+            };
+            try {
+                const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${googleAccessToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(event)
+                });
+                return !(await response.json()).error;
+            } catch(e) { return false; }
+        }
+
+        // ================= DATOS BÁSICOS =================
+        function saveData() {
+            localStorage.setItem('sec_clients_final', JSON.stringify(clients));
+            localStorage.setItem('sec_tasks_final', JSON.stringify(tasks));
+            localStorage.setItem('sec_meetings_final', JSON.stringify(meetings));
+        }
+
+        function loadData() {
+            clients = JSON.parse(localStorage.getItem('sec_clients_final') || '[]');
+            tasks = JSON.parse(localStorage.getItem('sec_tasks_final') || '[]');
+            meetings = JSON.parse(localStorage.getItem('sec_meetings_final') || '[]');
+        }
+
+        function renderClients() {
+            const list = document.getElementById('clientsList');
+            if (clients.length === 0) { list.innerHTML = '<p class="item-sub" style="text-align:center;">Sin clientes</p>'; return; }
+            list.innerHTML = clients.map((c, i) => `
+                <div class="item-card client-item ${currentClient === i ? 'active' : ''}" onclick="selectClient(${i})">
+                    <div class="item-title">${c.name}</div>
+                    <div class="item-sub">${c.email || 'Sin email'} | ${c.phone || 'Sin teléfono'}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectClient(index) {
+            currentClient = index; renderClients();
+            addSystemMessage(`👤 Cliente enfocado: ${clients[index].name}.`);
+        }
+
+        function openAddClientModal() { document.getElementById('addClientModal').classList.add('active'); }
+        function closeAddClientModal() { document.getElementById('addClientModal').classList.remove('active'); }
+
+        function saveClient() {
+            const name = document.getElementById('clientName').value;
+            if (!name) return alert('El nombre es obligatorio');
+            clients.push({
+                name, email: document.getElementById('clientEmail').value,
+                phone: document.getElementById('clientPhone').value, details: document.getElementById('clientDetails').value
+            });
+            saveData(); renderClients(); closeAddClientModal();
+            addSystemMessage(`✓ Cliente "${name}" agregado.`);
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('tasksList');
+            const pending = tasks.filter(t => !t.completed);
+            if (pending.length === 0) { list.innerHTML = '<p class="item-sub" style="text-align:center;">Todo al día</p>'; return; }
+            list.innerHTML = pending.map((t, index) => {
+                const due = new Date(t.dueDate);
+                return `
+                    <div class="item-card task-item">
+                        <button class="btn-delete" onclick="completeTask(${index})">✓</button>
+                        <div class="item-title" style="padding-right: 25px;">${t.title}</div>
+                        <div class="item-sub">👤 ${t.clientName} | 📅 ${due.toLocaleDateString()}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function completeTask(index) {
+            let pendingIdx = -1;
+            for(let i=0; i<tasks.length; i++) {
+                if(!tasks[i].completed) {
+                    pendingIdx++;
+                    if(pendingIdx === index) { tasks[i].completed = true; break; }
+                }
+            }
+            saveData(); renderTasks();
+        }
+
+        function renderMeetings() {
+            const list = document.getElementById('meetingsList');
+            const sorted = meetings.sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (sorted.length === 0) { list.innerHTML = '<p class="item-sub" style="text-align:center;">Agenda libre</p>'; return; }
+            list.innerHTML = sorted.map(m => {
+                const date = new Date(m.date);
+                return `
+                    <div class="item-card">
+                        <div class="item-title">${m.title}</div>
+                        <div class="item-sub">👤 ${m.clientName}</div>
+                        <div class="item-sub" style="color: #64c864; margin-top: 5px;">📅 ${date.toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ================= CALCULADORA INTEGRADA =================
+        function initCalculator() {
+            const inputs = document.getElementById('calcForm').querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', updateCalculator);
+                input.addEventListener('change', updateCalculator);
+            });
+            updateCalculator();
+        }
+
+        function updateCalculator() {
+            const v = (id) => parseFloat(document.getElementById(id).value) || 0;
+            const c = (id) => document.getElementById(id).checked;
+            
+            let total = (c('calc_refrigeradora')?25:0) + (c('calc_horno')?25:0) + (c('calc_gabinetes')?50:0) +
+                        (v('calc_ventanas')*5) + (v('calc_dormitorios')*25) + (v('calc_banos')*25) + 
+                        (v('calc_cocina')*25) + (v('calc_sala')*25);
+
+            if (total === 0 && !c('calc_mascotas')) { document.getElementById('calc_resultado').innerText = "$0.00"; return; }
+
+            if (c('calc_mudanza')) total *= 1.20;
+            
+            const tamano = document.querySelector('input[name="calc_tamano"]:checked');
+            if (tamano) total *= parseFloat(tamano.value);
+            
+            if (c('calc_mascotas')) total += 15;
+            
+            const desc = document.querySelector('input[name="calc_descuento"]:checked');
+            if (desc) total *= (1 - (parseFloat(desc.value) / 100));
+
+            document.getElementById('calc_resultado').innerText = `$${total.toFixed(2)}`;
+        }
+
+        function resetCalculator() {
+            document.getElementById('calcForm').reset();
+            updateCalculator();
+        }
+
+        // ================= CHAT IA =================
+        function addSystemMessage(text) { const m = document.getElementById('messages'); m.innerHTML += `<div class="message system">${text}</div>`; m.scrollTop = m.scrollHeight; }
+        function addUserMessage(text) { const m = document.getElementById('messages'); m.innerHTML += `<div class="message user">${text}</div>`; m.scrollTop = m.scrollHeight; }
+        function addAssistantMessage(text) { const m = document.getElementById('messages'); m.innerHTML += `<div class="message assistant">${text}</div>`; m.scrollTop = m.scrollHeight; }
+
+        async function sendMessage() {
+            const keys = getKeys();
+            if (!keys.gemini) return addSystemMessage("⚠️ Ingresa tu API Key de Gemini en la parte superior para usar el chat.");
+            
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addUserMessage(text);
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+
+            const systemContext = `
+Eres la Secretaria Ejecutiva de una Empresa de Limpieza.
+Cliente actual seleccionado: ${currentClient !== null ? clients[currentClient].name : 'Ninguno (indícalo si te piden agendar y no hay cliente seleccionado)'}
+
+INSTRUCCIONES DE PRECIOS EXACTOS (Cotiza mentalmente):
+- Base: Dormitorio $25, Baño $25, Cocina $25, Sala $25, Ventana extra $5.
+- Extras: Interior Refri $25, Horno $25, Gabinetes $50. Mascotas (Suma $15 al final de todo).
+- Multiplicadores: Mudanza/Deep Clean (+20%). Tamaño Casa: Pequeña (+10%), Mediana (+15%), Grande (+20%).
+- Descuentos por frecuencia: Mensual (-5%), Quincenal (-10%), Semanal (-15%).
+Muestra el desglose amablemente y da el total final.
+
+Si el usuario pide agendar o guardar algo, extrae un JSON oculto AL FINAL del mensaje:
+- Tarea: {"accion": "tarea", "titulo": "...", "dias": numero}
+- Cita: {"accion": "cita", "titulo": "...", "fecha_iso": "YYYY-MM-DDTHH:MM:SS"} (Asume que hoy es ${new Date().toLocaleDateString()}).
+`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${keys.gemini}`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: text }] }], systemInstruction: { parts: [{ text: systemContext }] } })
+                });
+
+                const data = await response.json();
+                let reply = data.candidates[0].content.parts[0].text;
+                
+                const jsonMatch = reply.match(/\{[\s\S]*"accion"[\s\S]*\}/);
+                if (jsonMatch) {
+                    reply = reply.replace(jsonMatch[0], '').trim();
+                    await ejecutarAccion(JSON.parse(jsonMatch[0]));
+                }
+
+                addAssistantMessage(reply || "Entendido.");
+            } catch (error) {
+                addAssistantMessage(`❌ Error de IA. Revisa tu conexión o tu API Key.`);
+            } finally {
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+
+        async function ejecutarAccion(data) {
+            const clientName = currentClient !== null ? clients[currentClient].name : 'Cliente General';
+            const clientDetails = currentClient !== null ? clients[currentClient].details : '';
+
+            if (data.accion === 'tarea') {
+                const dueDate = new Date(); dueDate.setDate(dueDate.getDate() + (data.dias || 3));
+                tasks.push({ title: data.titulo, clientName, dueDate: dueDate.toISOString(), completed: false });
+                saveData(); renderTasks(); addSystemMessage(`📋 Tarea guardada en el sistema: ${data.titulo}`);
+            } 
+            else if (data.accion === 'cita') {
+                const date = new Date(data.fecha_iso);
+                meetings.push({ title: data.titulo, clientName, date: date.toISOString() });
+                saveData(); renderMeetings();
+                
+                if (googleAccessToken) {
+                    addSystemMessage(`⏳ Enviando cita a Google Calendar...`);
+                    const success = await createEventInGoogleCalendar(data.titulo, date.toISOString(), `Cita con: ${clientName}\nDetalles: ${clientDetails}\n- Agendado vía Asistente IA`);
+                    if (success) addSystemMessage(`✅ ¡Evento confirmado en tu Google Calendar!`);
+                    else addSystemMessage(`❌ Hubo un fallo sincronizando con Google.`);
+                } else {
+                    addSystemMessage(`⚠️ Cita guardada localmente. (Presiona 'Conectar con Google Calendar' si quieres enviarla a tu cuenta real).`);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
+
