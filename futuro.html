@@ -15,13 +15,52 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0 0 20px 0;
             color: #333;
+        }
+
+        /* BARRA DE NAVEGACIÓN NUEVA */
+        .navbar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar a.active {
+            background: rgba(255,255,255,0.2);
+            opacity: 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .navbar a:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+            opacity: 1;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0 20px;
         }
 
         header {
@@ -93,16 +132,8 @@
             transition: border-color 0.3s;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:focus {
-            outline: none;
-            border-color: #4facfe;
-            background: #f8f9ff;
-        }
+        textarea { resize: vertical; min-height: 100px; }
+        textarea:focus, input:focus, select:focus { outline: none; border-color: #4facfe; background: #f8f9ff; }
 
         /* GESTOR DE CASOS */
         .case-manager {
@@ -115,24 +146,11 @@
             flex-direction: column;
             gap: 10px;
         }
-        .case-controls {
-            display: flex;
-            gap: 10px;
-        }
-        .case-controls select {
-            flex: 1;
-            font-weight: bold;
-            color: #4facfe;
-        }
+        .case-controls { display: flex; gap: 10px; }
+        .case-controls select { flex: 1; font-weight: bold; color: #4facfe; }
         .btn-icon {
-            padding: 10px;
-            background: #e0e0e0;
-            color: #333;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
+            padding: 10px; background: #e0e0e0; color: #333; border: none;
+            border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;
         }
         .btn-icon:hover { background: #d0d0d0; }
         .btn-new-case { background: #4caf50; color: white; }
@@ -140,145 +158,48 @@
         .btn-del-case { background: #f44336; color: white; }
         .btn-del-case:hover { background: #e53935; }
 
-        /* SECCIÓN DE RESPALDOS (NUEVA) */
         .backup-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-            border-top: 1px dashed #b3d4ff;
-            padding-top: 10px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-top: 10px; border-top: 1px dashed #b3d4ff; padding-top: 10px;
         }
-        .btn-backup {
-            background: #607d8b;
-            color: white;
-            font-size: 0.85em;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-        }
+        .btn-backup { background: #607d8b; color: white; font-size: 0.85em; padding: 8px; border-radius: 6px; text-align: center; }
         .btn-backup:hover { background: #455a64; }
 
-        .api-key-section {
-            background: #f8f9ff;
-            border: 1px solid #c3cfff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
+        .api-key-section { background: #f8f9ff; border: 1px solid #c3cfff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .api-key-section label { color: #4a5ee6; }
         .api-key-help { font-size: 0.8em; color: #666; margin-top: 5px; }
 
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-generate {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-
-        .btn-generate:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(79, 172, 254, 0.4);
-        }
-
+        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        button { padding: 12px 20px; border: none; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-generate { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+        .btn-generate:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(79, 172, 254, 0.4); }
         .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
-
         .btn-clear { background: #f0f0f0; color: #333; }
         .btn-clear:hover { background: #e0e0e0; color: #f44336; }
-
-        .btn-continue {
-            background: #4caf50;
-            color: white;
-            width: 100%;
-            margin-top: 15px;
-        }
+        .btn-continue { background: #4caf50; color: white; width: 100%; margin-top: 15px; }
         .btn-continue:hover { background: #43a047; transform: translateY(-2px); }
 
         .output-panel { min-height: 400px; }
 
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 300px;
-            font-size: 1.1em;
-            color: #4facfe;
-            flex-direction: column;
-        }
-
-        .spinner {
-            border: 4px solid #f0f0f0;
-            border-top: 4px solid #4facfe;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
+        .loading { display: flex; align-items: center; justify-content: center; min-height: 300px; font-size: 1.1em; color: #4facfe; flex-direction: column; }
+        .spinner { border: 4px solid #f0f0f0; border-top: 4px solid #4facfe; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .error { background: #fee; color: #c33; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c33; }
 
-        /* ESTILOS DEL HISTORIAL */
-        .history-panel {
-            background: #f8f9ff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .history-node {
-            border-left: 3px solid #4facfe;
-            padding-left: 15px;
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .history-node::before {
-            content: ''; position: absolute; left: -7px; top: 0; width: 11px; height: 11px;
-            background: #4facfe; border-radius: 50%;
-        }
+        .history-panel { background: #f8f9ff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; }
+        .history-node { border-left: 3px solid #4facfe; padding-left: 15px; margin-bottom: 15px; position: relative; }
+        .history-node::before { content: ''; position: absolute; left: -7px; top: 0; width: 11px; height: 11px; background: #4facfe; border-radius: 50%; }
         .history-step { font-size: 0.8em; color: #4facfe; font-weight: bold; text-transform: uppercase; }
         .history-action { font-weight: bold; color: #333; margin: 4px 0; }
         .history-outcome { font-size: 0.9em; color: #666; }
 
-        /* ESTILOS DE RAMAS */
         .tree { margin-top: 20px; }
         .branch { margin-left: 20px; border-left: 2px solid #ddd; padding-left: 15px; margin-bottom: 25px; }
-        .branch-title {
-            font-weight: 600; color: #333; cursor: pointer; padding: 12px; border-radius: 6px;
-            display: flex; align-items: center; gap: 10px; transition: all 0.3s;
-            background: white; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        .branch-title { font-weight: 600; color: #333; cursor: pointer; padding: 12px; border-radius: 6px; display: flex; align-items: center; gap: 10px; transition: all 0.3s; background: white; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .branch-title:hover { background: #f8f9ff; border-color: #4facfe; }
-        .branch-toggle {
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 24px; height: 24px; background: #4facfe; color: white; border-radius: 50%;
-            font-size: 0.9em; font-weight: bold;
-        }
-        .branch-content {
-            display: none; margin-top: 10px; padding: 15px; background: #f8f9ff;
-            border-radius: 6px; border: 1px solid #eef;
-        }
+        .branch-toggle { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #4facfe; color: white; border-radius: 50%; font-size: 0.9em; font-weight: bold; }
+        .branch-content { display: none; margin-top: 10px; padding: 15px; background: #f8f9ff; border-radius: 6px; border: 1px solid #eef; }
         .branch-content.expanded { display: block; }
         .branch-description { color: #555; font-size: 0.95em; margin-bottom: 10px; line-height: 1.5; }
         
@@ -300,15 +221,19 @@
         .timeline-item { padding: 6px 0; border-bottom: 1px solid #eee; }
         .timeline-item:last-child { border-bottom: none; }
         
-        .scenario-info {
-            background: #f0f4ff; border-left: 4px solid #4facfe; padding: 15px;
-            border-radius: 6px; margin-bottom: 20px;
-        }
+        .scenario-info { background: #f0f4ff; border-left: 4px solid #4facfe; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
         .scenario-info h3 { color: #4facfe; margin-bottom: 8px; font-size: 1.1em;}
         .scenario-info p { color: #555; line-height: 1.5; font-size: 0.95em; }
     </style>
 </head>
 <body>
+
+    <!-- MENÚ SUPERIOR PARA NAVEGAR -->
+    <nav class="navbar">
+        <a href="index.html">💼 Secretaria IA</a>
+        <a href="futuro.html" class="active">🌍 Mundos Paralelos</a>
+    </nav>
+
     <div class="container">
         <header>
             <h1>🌍 Generador de Multiversos</h1>
@@ -316,10 +241,9 @@
         </header>
 
         <div class="main-grid">
-            <!-- PANEL IZQUIERDO: Controles e Historial -->
+            <!-- PANEL IZQUIERDO -->
             <div>
                 <div class="panel">
-                    
                     <!-- GESTOR DE CASOS CON BOTONES DE RESPALDO -->
                     <div class="case-manager">
                         <label style="margin-bottom: 5px; color: #4facfe;">📁 Archivos de Casos:</label>
@@ -346,7 +270,6 @@
 
                     <h2 id="currentCaseTitle">📖 El Camino Elegido</h2>
                     
-                    <!-- Historial Visual del Caso Actual -->
                     <div id="historyContainer" class="history-panel" style="display: none;">
                         <div id="historyList"></div>
                     </div>
@@ -371,17 +294,13 @@
                     </div>
 
                     <div class="button-group">
-                        <button class="btn-generate" id="generateBtn" onclick="generateScenarios()">
-                            🚀 Generar Caminos
-                        </button>
-                        <button class="btn-clear" onclick="resetCurrentCase()">
-                            🔄 Borrar Historia de este Caso
-                        </button>
+                        <button class="btn-generate" id="generateBtn" onclick="generateScenarios()">🚀 Generar Caminos</button>
+                        <button class="btn-clear" onclick="resetCurrentCase()">🔄 Borrar Historia</button>
                     </div>
                 </div>
             </div>
 
-            <!-- PANEL DERECHO: Resultados -->
+            <!-- PANEL DERECHO -->
             <div class="panel output-panel">
                 <h2>🌌 Futuros Posibles</h2>
                 <div id="output">
@@ -394,174 +313,106 @@
     </div>
 
     <script>
-        // SISTEMA DE GESTIÓN DE CASOS
-        let appData = {
-            cases: [], 
-            currentId: null 
-        };
+        let appData = { cases: [], currentId: null };
         let lastGeneratedBranches = []; 
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Cargar API Key
             const savedKey = localStorage.getItem('geminiApiKey');
             if (savedKey) document.getElementById('apiKey').value = savedKey;
 
-            // 2. Cargar Casos Guardados
             const savedData = localStorage.getItem('multiverse_saved_cases');
-            if (savedData) {
-                appData = JSON.parse(savedData);
-            }
+            if (savedData) appData = JSON.parse(savedData);
 
-            // 3. Inicializar primer caso si está vacío
-            if (appData.cases.length === 0) {
-                createNewCase("Caso A: Original", true);
-            } else {
-                updateCaseSelector();
-                loadCase(appData.currentId || appData.cases[0].id);
-            }
+            if (appData.cases.length === 0) createNewCase("Caso A: Original", true);
+            else { updateCaseSelector(); loadCase(appData.currentId || appData.cases[0].id); }
         });
 
-        // ================= GESTIÓN DE CASOS Y RESPALDOS =================
-        function saveAppData() {
-            localStorage.setItem('multiverse_saved_cases', JSON.stringify(appData));
-        }
+        function saveAppData() { localStorage.setItem('multiverse_saved_cases', JSON.stringify(appData)); }
 
         function createNewCase(defaultName = null, isInitial = false) {
             const name = defaultName || prompt("Nombre para el nuevo caso/mundo:", "Caso " + String.fromCharCode(65 + appData.cases.length));
             if (!name) return;
-
-            const newCase = {
-                id: Date.now().toString(),
-                name: name,
-                history: []
-            };
-
-            appData.cases.push(newCase);
-            appData.currentId = newCase.id;
-            saveAppData();
-            
-            updateCaseSelector();
-            loadCase(newCase.id);
+            const newCase = { id: Date.now().toString(), name: name, history: [] };
+            appData.cases.push(newCase); appData.currentId = newCase.id;
+            saveAppData(); updateCaseSelector(); loadCase(newCase.id);
         }
 
         function deleteCurrentCase() {
-            if (appData.cases.length <= 1) {
-                alert("Debes tener al menos un caso activo. Limpia el historial en su lugar.");
-                return;
-            }
-            if(confirm("¿Estás seguro de que deseas eliminar permanentemente este caso y toda su historia?")) {
+            if (appData.cases.length <= 1) return alert("Debes tener al menos un caso activo.");
+            if(confirm("¿Eliminar permanentemente este caso?")) {
                 appData.cases = appData.cases.filter(c => c.id !== appData.currentId);
                 appData.currentId = appData.cases[0].id;
-                saveAppData();
-                updateCaseSelector();
-                loadCase(appData.currentId);
+                saveAppData(); updateCaseSelector(); loadCase(appData.currentId);
             }
         }
 
-        function switchCase() {
-            const selector = document.getElementById('caseSelector');
-            appData.currentId = selector.value;
-            saveAppData();
-            loadCase(appData.currentId);
-        }
+        function switchCase() { appData.currentId = document.getElementById('caseSelector').value; saveAppData(); loadCase(appData.currentId); }
 
         function updateCaseSelector() {
-            const selector = document.getElementById('caseSelector');
-            selector.innerHTML = '';
+            const selector = document.getElementById('caseSelector'); selector.innerHTML = '';
             appData.cases.forEach(c => {
-                const option = document.createElement('option');
-                option.value = c.id;
-                option.textContent = c.name;
+                const option = document.createElement('option'); option.value = c.id; option.textContent = c.name;
                 if (c.id === appData.currentId) option.selected = true;
                 selector.appendChild(option);
             });
         }
 
         function loadCase(id) {
-            const currentCase = appData.cases.find(c => c.id === id);
-            if(!currentCase) return;
-
-            document.getElementById('currentCaseTitle').innerText = `📖 Historia: ${currentCase.name}`;
-            renderHistory();
-
+            const currentCase = appData.cases.find(c => c.id === id); if(!currentCase) return;
+            document.getElementById('currentCaseTitle').innerText = `📖 Historia: ${currentCase.name}`; renderHistory();
             const inputField = document.getElementById('scenario');
             if (currentCase.history.length === 0) {
                 document.getElementById('scenarioLabel').innerText = "Punto de partida (Escenario inicial):";
-                inputField.value = '';
-                inputField.placeholder = "Ej: Juan descubre que su socio le robó...";
-                document.getElementById('output').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 20px;">👈 Nuevo caso en blanco. Escribe cómo empieza esta historia.</p>';
+                inputField.value = ''; inputField.placeholder = "Ej: Juan descubre que su socio le robó...";
+                document.getElementById('output').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 20px;">👈 Nuevo caso en blanco.</p>';
             } else {
                 const lastOutcome = currentCase.history[currentCase.history.length - 1].outcome;
                 document.getElementById('scenarioLabel').innerText = `Siguiente acción (Paso ${currentCase.history.length + 1}):`;
-                inputField.value = '';
-                inputField.placeholder = `Situación actual: "${lastOutcome}". \n\n¿Qué decides hacer ahora a partir de esto?`;
-                document.getElementById('output').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 20px;">👈 Escribe qué sucede a continuación para continuar la rama.</p>';
+                inputField.value = ''; inputField.placeholder = `Situación actual: "${lastOutcome}". \n\n¿Qué decides hacer ahora?`;
+                document.getElementById('output').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 20px;">👈 Escribe qué sucede a continuación.</p>';
             }
         }
 
         function resetCurrentCase() {
-            if(confirm("¿Estás seguro de borrar toda la historia de ESTE CASO y empezar de cero?")) {
+            if(confirm("¿Borrar toda la historia de ESTE CASO y empezar de cero?")) {
                 const currentCase = appData.cases.find(c => c.id === appData.currentId);
-                currentCase.history = [];
-                lastGeneratedBranches = [];
-                saveAppData();
-                loadCase(appData.currentId);
+                currentCase.history = []; lastGeneratedBranches = [];
+                saveAppData(); loadCase(appData.currentId);
             }
         }
 
-        // --- FUNCIONES DE RESPALDO (EXPORTAR/IMPORTAR) ---
         function exportBackup() {
             const dataStr = JSON.stringify(appData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            const date = new Date().toISOString().split('T')[0];
-            link.download = `Respaldo_Mundos_Paralelos_${date}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
-            alert("Respaldo descargado exitosamente.");
+            const link = document.createElement('a'); link.href = url;
+            link.download = `Respaldo_Mundos_${new Date().toISOString().split('T')[0]}.json`;
+            link.click(); URL.revokeObjectURL(url); alert("Respaldo descargado exitosamente.");
         }
 
         function importBackup(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (importedData && importedData.cases && Array.isArray(importedData.cases)) {
-                        appData = importedData;
-                        saveAppData();
-                        updateCaseSelector();
-                        loadCase(appData.currentId || appData.cases[0].id);
+                        appData = importedData; saveAppData(); updateCaseSelector(); loadCase(appData.currentId || appData.cases[0].id);
                         alert("¡Respaldo cargado correctamente!");
-                    } else {
-                        throw new Error("Formato incorrecto");
-                    }
-                } catch (error) {
-                    alert("Error al cargar el archivo. Asegúrate de que es un archivo JSON de respaldo válido.");
-                }
+                    } else throw new Error("Formato incorrecto");
+                } catch (error) { alert("Error al cargar el archivo JSON de respaldo."); }
             };
-            reader.readAsText(file);
-            // Limpiar el input file
-            event.target.value = '';
+            reader.readAsText(file); event.target.value = '';
         }
 
-        // ================= CONEXIÓN IA =================
         async function fetchWithRetry(url, options, retries = 3) {
             const delays = [1000, 2000, 4000];
             for (let i = 0; i < retries; i++) {
                 try {
-                    const response = await fetch(url, options);
-                    const data = await response.json();
+                    const response = await fetch(url, options); const data = await response.json();
                     if (!response.ok) throw new Error(data.error?.message || `Error HTTP: ${response.status}`);
                     return data;
-                } catch (error) {
-                    if (i === retries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, delays[i]));
-                }
+                } catch (error) { if (i === retries - 1) throw error; await new Promise(resolve => setTimeout(resolve, delays[i])); }
             }
         }
 
@@ -574,38 +425,20 @@
             const btn = document.getElementById('generateBtn');
 
             if (!apiKeyInput) return alert("Falta la API Key de Gemini.");
-            if (!scenario) return alert("Por favor describe el escenario o la siguiente acción.");
-
+            if (!scenario) return alert("Por favor describe el escenario.");
             localStorage.setItem('geminiApiKey', apiKeyInput);
 
-            btn.disabled = true;
-            output.innerHTML = '<div class="loading"><div class="spinner"></div><div>Explorando el multiverso...</div></div>';
+            btn.disabled = true; output.innerHTML = '<div class="loading"><div class="spinner"></div><div>Explorando el multiverso...</div></div>';
 
             const currentCase = appData.cases.find(c => c.id === appData.currentId);
+            let historyContext = "Esta es la situación inicial.";
+            if (currentCase.history.length > 0) { historyContext = currentCase.history.map((h, i) => `Paso ${i + 1}: ${h.action}\nConsecuencia: ${h.outcome}`).join("\n\n"); }
 
-            let historyContext = "Esta es la situación inicial (El inicio del mundo).";
-            if (currentCase.history.length > 0) {
-                historyContext = currentCase.history.map((h, i) => `Paso ${i + 1} (Decisión tomada): ${h.action}\nConsecuencia: ${h.outcome}`).join("\n\n");
-            }
-
-            const promptText = `Eres un generador de escenarios ramificados interactivo.
-
-HISTORIA ACUMULADA DEL MUNDO (El contexto inamovible hasta ahora):
-${historyContext}
-
-NUEVO ESCENARIO O ACCIÓN DEL PROTAGONISTA A EVALUAR:
-${scenario}
-
-VARIABLES A MEDIR AL FINAL:
-${variables || "tensión general, recursos económicos, relaciones interpersonales"}
-
-TAREA: Genera ${numBranches} posibles consecuencias o caminos divergentes basados EXCLUSIVAMENTE en la historia acumulada y la nueva acción. Para cada rama:
-1. Una ACCIÓN O REACCIÓN INMEDIATA
-2. Una DESCRIPCIÓN de qué pasa después
-3. Un DESENLACE (cómo queda la situación)
-4. PROBABILIDAD (alta/media/baja)
-5. INDICADORES (tension: 0-100, dinero: 0-100, relaciones: 0-100)
-6. TIMELINE (fechas o momentos)`;
+            const promptText = `Eres un generador de escenarios ramificados.
+HISTORIA ACUMULADA: ${historyContext}
+NUEVA ACCIÓN: ${scenario}
+VARIABLES A MEDIR: ${variables || "tensión general, recursos económicos, relaciones interpersonales"}
+TAREA: Genera ${numBranches} ramas. Para cada rama: ACCIÓN, DESCRIPCIÓN, DESENLACE, PROBABILIDAD (alta/media/baja), INDICADORES (tension, dinero, relaciones 0-100) y TIMELINE.`;
 
             const payload = {
                 contents: [{ parts: [{ text: promptText }] }],
@@ -617,30 +450,16 @@ TAREA: Genera ${numBranches} posibles consecuencias o caminos divergentes basado
                         properties: {
                             resumen_contexto: { type: "STRING" },
                             ramas: {
-                                type: "ARRAY",
-                                items: {
-                                    type: "OBJECT",
-                                    properties: {
-                                        id: { type: "INTEGER" },
-                                        accion: { type: "STRING" },
-                                        descripcion: { type: "STRING" },
-                                        desenlace: { type: "STRING" },
-                                        probabilidad: { type: "STRING" },
-                                        indicadores: {
-                                            type: "OBJECT",
-                                            properties: {
-                                                tension: { type: "INTEGER" },
-                                                dinero: { type: "INTEGER" },
-                                                relaciones: { type: "INTEGER" }
-                                            }
-                                        },
+                                type: "ARRAY", items: {
+                                    type: "OBJECT", properties: {
+                                        id: { type: "INTEGER" }, accion: { type: "STRING" }, descripcion: { type: "STRING" },
+                                        desenlace: { type: "STRING" }, probabilidad: { type: "STRING" },
+                                        indicadores: { type: "OBJECT", properties: { tension: { type: "INTEGER" }, dinero: { type: "INTEGER" }, relaciones: { type: "INTEGER" } } },
                                         timeline: { type: "ARRAY", items: { type: "STRING" } }
-                                    },
-                                    required: ["id", "accion", "descripcion", "desenlace", "probabilidad", "indicadores", "timeline"]
+                                    }, required: ["id", "accion", "descripcion", "desenlace", "probabilidad", "indicadores", "timeline"]
                                 }
                             }
-                        },
-                        required: ["resumen_contexto", "ramas"]
+                        }, required: ["resumen_contexto", "ramas"]
                     }
                 }
             };
@@ -648,153 +467,70 @@ TAREA: Genera ${numBranches} posibles consecuencias o caminos divergentes basado
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKeyInput}`;
 
             try {
-                const data = await fetchWithRetry(url, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
+                const data = await fetchWithRetry(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 const contentText = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 const resultado = JSON.parse(contentText);
-                
-                lastGeneratedBranches = resultado.ramas;
-                renderBranches(resultado);
-
-            } catch (error) {
-                output.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
-            } finally {
-                btn.disabled = false;
-            }
+                lastGeneratedBranches = resultado.ramas; renderBranches(resultado);
+            } catch (error) { output.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`; } 
+            finally { btn.disabled = false; }
         }
 
-        // ================= INTERFAZ DE SALIDA =================
         function renderBranches(resultado) {
             const output = document.getElementById('output');
-            let html = `
-            <div class="scenario-info">
-                <h3>📋 Situación Actual</h3>
-                <p>${resultado.resumen_contexto}</p>
-            </div>
-            <div class="tree">`;
+            let html = `<div class="scenario-info"><h3>📋 Situación Actual</h3><p>${resultado.resumen_contexto}</p></div><div class="tree">`;
 
             resultado.ramas.forEach((rama, index) => {
                 const probColor = rama.probabilidad === 'alta' ? '#4caf50' : rama.probabilidad === 'media' ? '#ff9800' : '#f44336';
-                
                 html += `
                 <div class="branch">
                     <div class="branch-title" onclick="toggleBranch(this)">
-                        <div class="branch-toggle">+</div>
-                        <span>🌍 Opción ${index + 1}: ${rama.accion}</span>
+                        <div class="branch-toggle">+</div><span>🌍 Opción ${index + 1}: ${rama.accion}</span>
                     </div>
                     <div class="branch-content">
                         <p class="branch-description"><strong>Desarrollo:</strong> ${rama.descripcion}</p>
-                        
                         <div class="branch-stats">
-                            <div class="stat">
-                                <div class="stat-label">Probabilidad</div>
-                                <div class="stat-value" style="color: ${probColor}; text-transform: uppercase;">${rama.probabilidad}</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-label">Desenlace</div>
-                                <div class="stat-value" style="font-size: 0.9em; color: #555;">${rama.desenlace}</div>
-                            </div>
+                            <div class="stat"><div class="stat-label">Probabilidad</div><div class="stat-value" style="color: ${probColor}; text-transform: uppercase;">${rama.probabilidad}</div></div>
+                            <div class="stat"><div class="stat-label">Desenlace</div><div class="stat-value" style="font-size: 0.9em; color: #555;">${rama.desenlace}</div></div>
                         </div>
-
                         <div style="margin-top: 15px;">
                             <strong style="color: #333; font-size:0.9em;">📊 Impacto:</strong>
-                            <div class="indicator indicator-tension">
-                                <span class="indicator-label">Tensión</span>
-                                <div class="indicator-bar"><div class="indicator-fill" style="width: ${rama.indicadores.tension}%"></div></div>
-                                <span class="indicator-value">${rama.indicadores.tension}%</span>
-                            </div>
-                            <div class="indicator indicator-dinero">
-                                <span class="indicator-label">Recursos</span>
-                                <div class="indicator-bar"><div class="indicator-fill" style="width: ${rama.indicadores.dinero}%"></div></div>
-                                <span class="indicator-value">${rama.indicadores.dinero}%</span>
-                            </div>
-                            <div class="indicator indicator-relaciones">
-                                <span class="indicator-label">Relaciones</span>
-                                <div class="indicator-bar"><div class="indicator-fill" style="width: ${rama.indicadores.relaciones}%"></div></div>
-                                <span class="indicator-value">${rama.indicadores.relaciones}%</span>
-                            </div>
+                            <div class="indicator indicator-tension"><span class="indicator-label">Tensión</span><div class="indicator-bar"><div class="indicator-fill" style="width: ${rama.indicadores.tension}%"></div></div><span class="indicator-value">${rama.indicadores.tension}%</span></div>
+                            <div class="indicator indicator-dinero"><span class="indicator-label">Recursos</span><div class="indicator-bar"><div class="indicator-fill" style="width: ${rama.indicadores.dinero}%"></div></div><span class="indicator-value">${rama.indicadores.dinero}%</span></div>
+                            <div class="indicator indicator-relaciones"><span class="indicator-label">Relaciones</span><div class="indicator-bar"><div class="indicator-fill" style="width: ${rama.indicadores.relaciones}%"></div></div><span class="indicator-value">${rama.indicadores.relaciones}%</span></div>
                         </div>
-
-                        <div class="timeline">
-                            <strong style="color: #333; display: block; margin-bottom: 8px;">⏰ Cronología:</strong>
-                            ${rama.timeline.map(t => `<div class="timeline-item">${t}</div>`).join('')}
-                        </div>
-
-                        <button class="btn-continue" onclick="chooseBranch(${index})">
-                            ✨ Elegir este destino y continuar la historia
-                        </button>
+                        <div class="timeline"><strong style="color: #333; display: block; margin-bottom: 8px;">⏰ Cronología:</strong>${rama.timeline.map(t => `<div class="timeline-item">${t}</div>`).join('')}</div>
+                        <button class="btn-continue" onclick="chooseBranch(${index})">✨ Elegir este destino y continuar</button>
                     </div>
                 </div>`;
             });
 
-            html += '</div>';
-            output.innerHTML = html;
-            
-            const firstBranch = document.querySelector('.branch-title');
-            if (firstBranch) toggleBranch(firstBranch);
+            html += '</div>'; output.innerHTML = html;
+            const firstBranch = document.querySelector('.branch-title'); if (firstBranch) toggleBranch(firstBranch);
         }
 
         function chooseBranch(index) {
-            const chosen = lastGeneratedBranches[index];
-            const currentCase = appData.cases.find(c => c.id === appData.currentId);
-            
-            currentCase.history.push({
-                action: chosen.accion,
-                outcome: chosen.desenlace
-            });
-            
-            saveAppData();
-            renderHistory();
-
+            const chosen = lastGeneratedBranches[index]; const currentCase = appData.cases.find(c => c.id === appData.currentId);
+            currentCase.history.push({ action: chosen.accion, outcome: chosen.desenlace });
+            saveAppData(); renderHistory();
             const inputField = document.getElementById('scenario');
-            inputField.value = "";
-            document.getElementById('scenarioLabel').innerText = `Siguiente acción (Paso ${currentCase.history.length + 1}):`;
+            inputField.value = ""; document.getElementById('scenarioLabel').innerText = `Siguiente acción (Paso ${currentCase.history.length + 1}):`;
             inputField.placeholder = `La historia terminó aquí: "${chosen.desenlace}". \n\n¿Qué decides hacer ahora?`;
-            
-            document.getElementById('output').innerHTML = `
-                <div class="scenario-info" style="background:#e8f5e9; border-color:#4caf50;">
-                    <h3 style="color:#2e7d32;">✅ Destino Sellado</h3>
-                    <p>Has elegido: <strong>${chosen.accion}</strong></p>
-                    <p>El historial del ${currentCase.name} se ha actualizado. Escribe tu siguiente movimiento a la izquierda para continuar.</p>
-                </div>
-            `;
+            document.getElementById('output').innerHTML = `<div class="scenario-info" style="background:#e8f5e9; border-color:#4caf50;"><h3 style="color:#2e7d32;">✅ Destino Sellado</h3><p>Has elegido: <strong>${chosen.accion}</strong></p><p>El historial se ha actualizado. Escribe tu siguiente movimiento a la izquierda para continuar.</p></div>`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderHistory() {
-            const container = document.getElementById('historyContainer');
-            const list = document.getElementById('historyList');
+            const container = document.getElementById('historyContainer'); const list = document.getElementById('historyList');
             const currentCase = appData.cases.find(c => c.id === appData.currentId);
-            
-            if (!currentCase || currentCase.history.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-
-            container.style.display = 'block';
-            let html = '';
-            
-            currentCase.history.forEach((h, i) => {
-                html += `
-                <div class="history-node">
-                    <div class="history-step">Paso ${i + 1}</div>
-                    <div class="history-action">${h.action}</div>
-                    <div class="history-outcome">Resultó en: ${h.outcome}</div>
-                </div>`;
-            });
-            
-            list.innerHTML = html;
-            container.scrollTop = container.scrollHeight;
+            if (!currentCase || currentCase.history.length === 0) { container.style.display = 'none'; return; }
+            container.style.display = 'block'; let html = '';
+            currentCase.history.forEach((h, i) => { html += `<div class="history-node"><div class="history-step">Paso ${i + 1}</div><div class="history-action">${h.action}</div><div class="history-outcome">Resultó en: ${h.outcome}</div></div>`; });
+            list.innerHTML = html; container.scrollTop = container.scrollHeight;
         }
 
         function toggleBranch(element) {
-            const content = element.nextElementSibling;
-            const toggle = element.querySelector('.branch-toggle');
-            content.classList.toggle('expanded');
-            toggle.textContent = content.classList.contains('expanded') ? '−' : '+';
+            const content = element.nextElementSibling; const toggle = element.querySelector('.branch-toggle');
+            content.classList.toggle('expanded'); toggle.textContent = content.classList.contains('expanded') ? '−' : '+';
         }
     </script>
 </body>
