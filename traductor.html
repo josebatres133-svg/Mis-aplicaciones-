@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traductor Pro ES↔EN (Gemini 2.5)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 0 0 20px 0;
+            color: #e0e0e0;
+        }
+        
+        /* BARRA DE NAVEGACIÓN */
+        .navbar {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #00d4ff;
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .navbar a {
+            color: #b0b0b0;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .navbar a.active {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+        .navbar a:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-size: 2.2em;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        header p { color: #b0b0b0; font-size: 1.1em; }
+
+        /* PANEL DE CONFIGURACIÓN API KEY */
+        .api-config {
+            background: rgba(20, 30, 50, 0.9);
+            border: 1px solid #ff9800;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .api-config label { color: #ff9800; font-weight: bold; font-size: 0.9em; }
+        .api-config input {
+            padding: 12px;
+            border: 1px solid #333;
+            background: rgba(10, 20, 30, 0.6);
+            color: #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: rgba(20, 30, 50, 0.9);
+            border: 2px solid #00d4ff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 1px solid #1a3a52;
+            padding-bottom: 10px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; color: #b0b0b0; margin-bottom: 8px; font-size: 0.95em; }
+        
+        textarea, input.text-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #1a3a52;
+            background: rgba(10, 20, 30, 0.6);
+            color: #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1.05em;
+            transition: all 0.3s;
+        }
+        textarea { min-height: 180px; resize: vertical; }
+        textarea:focus { border-color: #00d4ff; outline: none; background: rgba(20, 40, 60, 0.6); }
+
+        .btn-translate {
+            background: linear-gradient(135deg, #00d4ff 0%, #0077ff 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn-translate:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4); }
+        .btn-translate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+
+        /* RESULTADO */
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            position: relative;
+        }
+        .result-label { color: #00d4ff; font-weight: bold; font-size: 1em; margin-bottom: 12px; display: block; }
+        .result-text { font-style: italic; line-height: 1.6; font-size: 1.15em; white-space: pre-wrap; color: #fff; }
+        
+        .copy-badge {
+            position: absolute; top: 10px; right: 10px; background: #00d4ff; color: #000;
+            padding: 4px 8px; border-radius: 4px; font-size: 0.7em; font-weight: bold; cursor: pointer;
+        }
+
+        /* HISTORIAL */
+        .history-list { flex: 1; overflow-y: auto; padding-right: 5px; max-height: 600px; }
+        .history-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid #00d4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .history-client { color: #00d4ff; font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .history-date { font-size: 0.75em; color: #666; font-weight: normal; }
+        .history-orig { font-size: 0.85em; color: #ccc; margin-top: 5px; }
+        .history-trans { font-size: 1em; color: #00ff88; margin-top: 5px; font-style: italic; }
+
+        .loading { display: flex; align-items: center; justify-content: center; gap: 10px; color: #00d4ff; font-weight: bold; }
+        .spinner { width: 24px; height: 24px; border: 3px solid rgba(0,212,255,0.2); border-top-color: #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* TOAST MENSAJE */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: #4caf50; color: white;
+            padding: 10px 20px; border-radius: 5px; z-index: 5000; display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #1a3a52; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00d4ff; }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="navbar">
+        <a href="index.html">💼 Secretaria IA</a>
+        <a href="futuro.html">🌍 Mundos Paralelos</a>
+        <a href="traductor.html" class="active">🌐 Traductor Pro</a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>🌐 Traductor Nativo Profesional</h1>
+            <p>Traducciones precisas, naturales y directas para comunicarte con tus clientes</p>
+        </header>
+
+        <!-- CONFIGURACIÓN API KEY -->
+        <div class="api-config">
+            <label>🔑 Tu API Key de Gemini:</label>
+            <input type="password" id="geminiApiKey" onchange="saveKey()" placeholder="Pega tu API Key de Gemini aquí...">
+        </div>
+
+        <div class="main-grid">
+            <!-- PANEL DE ENTRADA -->
+            <div class="panel">
+                <h2>📝 Mensaje a Traducir</h2>
+                <div class="form-group">
+                    <label>Escribe el mensaje base (Español o Inglés):</label>
+                    <textarea id="originalMessage" placeholder="Ej: Hola usted necesita limpieza 3 cuartos y 2 baños..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre del Cliente (Opcional):</label>
+                    <input type="text" id="clientName" class="text-input" placeholder="Ej: Mrs. Thompson">
+                </div>
+
+                <button class="btn-translate" id="btnTranslate" onclick="translateWithGemini()">🚀 Traducir Mensaje</button>
+                <button class="btn-secondary" onclick="clearFields()">Limpiar Campos</button>
+
+                <div id="resultContainer"></div>
+            </div>
+
+            <!-- PANEL DE HISTORIAL -->
+            <div class="panel">
+                <h2>📋 Historial de Envíos</h2>
+                <div class="history-list" id="historyList">
+                    <p style="color: #666; text-align: center; padding: 40px 0;">No hay mensajes registrados.</p>
+                </div>
+                <button class="btn-secondary" onclick="clearHistory()">Borrar Todo el Historial</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">¡Copiado con éxito!</div>
+
+    <script>
+        // INICIALIZACIÓN
+        window.addEventListener('load', () => {
+            const savedKey = localStorage.getItem('geminiApiKeyTranslator');
+            if (savedKey) document.getElementById('geminiApiKey').value = savedKey;
+            renderHistory();
+        });
+
+        function saveKey() {
+            localStorage.setItem('geminiApiKeyTranslator', document.getElementById('geminiApiKey').value.trim());
+        }
+
+        // FUNCIÓN DE REINTENTO CON BACKOFF EXPONENCIAL
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            let delay = 1000;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                    
+                    const errorData = await response.json();
+                    if (response.status !== 429 && response.status !== 503) {
+                        throw new Error(errorData.error?.message || "Error en la API");
+                    }
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                }
+                await new Promise(r => setTimeout(r, delay));
+                delay *= 2;
+            }
+        }
+
+        async function translateWithGemini() {
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            const text = document.getElementById('originalMessage').value.trim();
+            const btn = document.getElementById('btnTranslate');
+            const resultContainer = document.getElementById('resultContainer');
+
+            if (!apiKey) return alert("Por favor, ingresa tu API Key en la sección superior.");
+            if (!text) return alert("Escribe un mensaje para poder traducirlo.");
+
+            btn.disabled = true;
+            resultContainer.innerHTML = `
+                <div class="result-box">
+                    <div class="loading"><div class="spinner"></div> Gemini está traduciendo...</div>
+                </div>
+            `;
+
+            // NUEVO PROMPT EXACTO PROPORCIONADO POR EL USUARIO
+            const systemPrompt = `Actúa como el dueño de una empresa profesional de limpieza en Estados Unidos que habla inglés nativo y se comunica con clientes por mensaje de texto o plataformas como Thumbtack.
+Tu tarea es traducir el siguiente mensaje para que suene natural, claro y profesional, como lo escribiría un dueño de negocio en Estados Unidos.
+
+REGLAS IMPORTANTES:
+1. No traduzcas palabra por palabra; traduce el significado natural del mensaje.
+2. Si el texto está en español, tradúcelo a inglés americano natural.
+3. Si el texto está en inglés, tradúcelo a español latinoamericano claro.
+4. Mantén el mensaje corto y directo, como un mensaje de texto entre cliente y negocio.
+5. No agregues información nueva ni frases de marketing que no estén en el mensaje original.
+6. Mantén el mismo significado y longitud aproximada del mensaje original.
+7. Si el mensaje es una pregunta, usa una estructura de pregunta natural en inglés (por ejemplo: Do you need…, Are you looking for…, Would you like…).
+8. El tono debe ser amable y profesional.
+
+RESPUESTA:
+- Entrega solo el mensaje final traducido, listo para enviarse al cliente.
+- No agregues explicaciones.
+- No uses comillas.
+
+Ejemplo usando tu frase:
+Texto: Hola usted necesita limpieza 3 cuartos y 2 baños
+Resultado: Hi! Do you need cleaning for a 3-bedroom, 2-bathroom home?`;
+
+            // USANDO EL MODELO ESTABLE PARA EVITAR ERRORES (gemini-2.5-flash)
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const data = await fetchWithRetry(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "TEXTO A TRADUCIR: " + text }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                const translated = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                if (!translated) throw new Error("La API no devolvió contenido.");
+
+                resultContainer.innerHTML = `
+                    <div class="result-box">
+                        <div class="copy-badge" onclick="copyToClipboard()">Copiar</div>
+                        <span class="result-label">💬 Mensaje Listo para Enviar:</span>
+                        <div class="result-text" id="finalTranslatedText">${translated}</div>
+                        <button class="btn-translate" style="background:#4caf50; width:100%; margin-top:15px;" onclick="saveToHistory()">💾 Guardar en Historial</button>
+                    </div>
+                `;
+            } catch (error) {
+                resultContainer.innerHTML = `<div class="result-box" style="border-color:#ff6b6b; color:#ff6b6b;">❌ Hubo un fallo: ${error.message}. Verifica tu API Key.</div>`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('finalTranslatedText').innerText;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
+        }
+
+        function saveToHistory() {
+            const client = document.getElementById('clientName').value.trim() || "Cliente General";
+            const original = document.getElementById('originalMessage').value;
+            const translated = document.getElementById('finalTranslatedText').innerText;
+            
+            let history = JSON.parse(localStorage.getItem('gemini_accurate_history') || '[]');
+            history.unshift({ client, original, translated, date: new Date().toLocaleString() });
+            localStorage.setItem('gemini_accurate_history', JSON.stringify(history.slice(0, 50)));
+            
+            renderHistory();
+            clearFields();
+            document.getElementById('resultContainer').innerHTML = "";
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('gemini_accurate_history') || '[]');
+
+            if (history.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; padding: 40px 0;">Historial vacío.</p>';
+                return;
+            }
+
+            list.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <div class="history-client">
+                        👤 ${item.client}
+                        <span class="history-date">${item.date}</span>
+                    </div>
+                    <div class="history-orig">Original: ${item.original}</div>
+                    <div class="history-trans">Traducción: ${item.translated}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearFields() {
+            document.getElementById('originalMessage').value = "";
+            document.getElementById('clientName').value = "";
+        }
+
+        function clearHistory() {
+            if (confirm("¿Estás seguro de borrar todo el historial?")) {
+                localStorage.setItem('gemini_accurate_history', '[]');
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
+
+
