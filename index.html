@@ -14,6 +14,42 @@
             flex-direction: column;
             color: #e0e0e0;
         }
+        
+        /* BARRA DE NAVEGACIÓN NUEVA */
+        .navbar {
+            background: #0a0a1a;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #2a9aff;
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .navbar a {
+            color: #b0b0b0;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar a.active {
+            background: #2a5298;
+            color: white;
+            box-shadow: 0 4px 10px rgba(42, 82, 152, 0.5);
+        }
+        .navbar a:hover:not(.active) {
+            background: rgba(42, 82, 152, 0.3);
+            color: white;
+        }
+
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             padding: 20px;
@@ -260,7 +296,7 @@
         /* MODAL */
         .modal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.7); z-index: 3000; align-items: center; justify-content: center;
         }
         .modal.active { display: flex; }
         .modal-content {
@@ -281,10 +317,16 @@
         .scrollable::-webkit-scrollbar-track { background: rgba(40, 40, 60, 0.5); }
         .scrollable::-webkit-scrollbar-thumb { background: #2a5298; border-radius: 3px; }
     </style>
-    <!-- Script de Google API -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+    
+    <!-- MENÚ SUPERIOR PARA NAVEGAR -->
+    <nav class="navbar">
+        <a href="index.html" class="active">💼 Secretaria IA</a>
+        <a href="futuro.html">🌍 Mundos Paralelos</a>
+    </nav>
+
     <div class="header">
         <h1>📋 Asistente Secretario IA + Cotizador</h1>
         <p>Gestiona clientes, agenda citas y cotiza limpiezas automáticamente</p>
@@ -348,7 +390,6 @@
             <div id="calculator" class="tab-content">
                 <div class="scrollable">
                     <form id="calcForm">
-                        <!-- Áreas -->
                         <div class="calc-section">
                             <div class="calc-title">🏠 Áreas de la Casa (+$25 c/u)</div>
                             <div class="calc-row"><label>Dormitorios</label><input type="number" id="calc_dormitorios" min="0" placeholder="0"></div>
@@ -360,7 +401,6 @@
                             </div>
                         </div>
 
-                        <!-- Extras -->
                         <div class="calc-section">
                             <div class="calc-title">✨ Servicios Extras</div>
                             <label class="calc-check calc-row"><input type="checkbox" id="calc_refrigeradora"> Refrigeradora <span class="calc-price-badge">+$25</span></label>
@@ -372,7 +412,6 @@
                             </label>
                         </div>
 
-                        <!-- Tamaño y Frecuencia -->
                         <div class="calc-section">
                             <div class="calc-title">📏 Ajuste por Tamaño</div>
                             <label class="calc-check calc-row"><input type="radio" name="calc_tamano" value="1.0" checked> Estándar</label>
@@ -398,7 +437,7 @@
         </div>
     </div>
 
-    <!-- MODAL: AGREGAR CLIENTE -->
+    <!-- MODAL -->
     <div class="modal" id="addClientModal">
         <div class="modal-content">
             <h3>Nuevo Cliente</h3>
@@ -414,32 +453,17 @@
     </div>
 
     <script>
-        // ESTADO GLOBAL
-        let clients = [];
-        let tasks = [];
-        let meetings = [];
-        let currentClient = null;
-        let tokenClient;
-        let googleAccessToken = null;
+        let clients = []; let tasks = []; let meetings = []; let currentClient = null; let tokenClient; let googleAccessToken = null;
 
-        // INICIALIZACIÓN
         window.addEventListener('load', () => {
             const savedGemini = localStorage.getItem('geminiApiKeySecretary');
             const savedGoogle = localStorage.getItem('googleClientId');
             if (savedGemini) document.getElementById('geminiApiKey').value = savedGemini;
             if (savedGoogle) document.getElementById('googleClientId').value = savedGoogle;
 
-            loadData();
-            renderClients();
-            renderTasks();
-            renderMeetings();
-            initCalculator();
+            loadData(); renderClients(); renderTasks(); renderMeetings(); initCalculator();
             
-            // INTENTO DE AUTO-RECONEXIÓN SILENCIOSA A GOOGLE CALENDAR
-            if (savedGoogle) {
-                initGoogleSilencioso(savedGoogle);
-            }
-            
+            if (savedGoogle) initGoogleSilencioso(savedGoogle);
             addSystemMessage("¡Hola! Soy tu asistente. Si diste permiso a Calendar antes, me reconectaré automáticamente en unos segundos. Si no, dale al botón de conectar.");
         });
 
@@ -451,59 +475,41 @@
             return { gemini, google };
         }
 
-        // ================= GOOGLE CALENDAR =================
         function initGoogleSilencioso(clientId) {
-            // Intenta obtener el token sin mostrar ventanas emergentes, asumiendo que ya hay permiso
             try {
                 tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/calendar.events',
+                    client_id: clientId, scope: 'https://www.googleapis.com/auth/calendar.events',
                     callback: (response) => {
-                        if (response.error) {
-                            console.log("No se pudo autoconectar. El usuario debe hacer clic en el botón.");
-                            return;
-                        }
+                        if (response.error) return;
                         googleAccessToken = response.access_token;
                         actualizarUIGoogleConectado();
                     },
                 });
-                // Pedimos el token pero sin forzar que el usuario interactúe (en algunos navegadores funciona directo)
                 tokenClient.requestAccessToken({prompt: ''}); 
-            } catch (e) {
-                console.log("Esperando interacción manual del usuario.");
-            }
+            } catch (e) {}
         }
 
         function connectGoogleCalendar() {
             const keys = getKeys();
             if (!keys.google) return alert("Por favor, pega tu Client ID de Google en la parte superior.");
-            
             try {
                 tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: keys.google,
-                    scope: 'https://www.googleapis.com/auth/calendar.events',
+                    client_id: keys.google, scope: 'https://www.googleapis.com/auth/calendar.events',
                     callback: (response) => {
-                        if (response.error) { 
-                            addSystemMessage("❌ Error Google: " + response.error); 
-                            return; 
-                        }
+                        if (response.error) { addSystemMessage("❌ Error Google: " + response.error); return; }
                         googleAccessToken = response.access_token;
                         actualizarUIGoogleConectado();
                     },
                 });
-                tokenClient.requestAccessToken({prompt: 'consent'}); // Aquí sí forzamos la ventana
-            } catch (e) { 
-                addSystemMessage("❌ Error iniciando Google Auth."); 
-            }
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } catch (e) { addSystemMessage("❌ Error iniciando Google Auth."); }
         }
 
         function actualizarUIGoogleConectado() {
             const btn = document.getElementById('btnConnectGoogle');
             const status = document.getElementById('googleStatus');
-            btn.innerHTML = "✅ Conectado a Calendar";
-            btn.disabled = true;
-            status.innerText = "Conexión activa con tu Calendario.";
-            status.style.color = "#64c864";
+            btn.innerHTML = "✅ Conectado a Calendar"; btn.disabled = true;
+            status.innerText = "Conexión activa con tu Calendario."; status.style.color = "#64c864";
             addSystemMessage("✅ ¡Enlazado con Google Calendar exitosamente! Todo lo que pidas agendar se irá a tu calendario.");
         }
 
@@ -526,7 +532,6 @@
             } catch(e) { return false; }
         }
 
-        // ================= DATOS BÁSICOS =================
         function saveData() {
             localStorage.setItem('sec_clients_final', JSON.stringify(clients));
             localStorage.setItem('sec_tasks_final', JSON.stringify(tasks));
@@ -550,11 +555,7 @@
             `).join('');
         }
 
-        function selectClient(index) {
-            currentClient = index; renderClients();
-            addSystemMessage(`👤 Cliente enfocado: ${clients[index].name}.`);
-        }
-
+        function selectClient(index) { currentClient = index; renderClients(); addSystemMessage(`👤 Cliente enfocado: ${clients[index].name}.`); }
         function openAddClientModal() { document.getElementById('addClientModal').classList.add('active'); }
         function closeAddClientModal() { document.getElementById('addClientModal').classList.remove('active'); }
 
@@ -565,8 +566,7 @@
                 name, email: document.getElementById('clientEmail').value,
                 phone: document.getElementById('clientPhone').value, details: document.getElementById('clientDetails').value
             });
-            saveData(); renderClients(); closeAddClientModal();
-            addSystemMessage(`✓ Cliente "${name}" agregado.`);
+            saveData(); renderClients(); closeAddClientModal(); addSystemMessage(`✓ Cliente "${name}" agregado.`);
         }
 
         function renderTasks() {
@@ -588,10 +588,7 @@
         function completeTask(index) {
             let pendingIdx = -1;
             for(let i=0; i<tasks.length; i++) {
-                if(!tasks[i].completed) {
-                    pendingIdx++;
-                    if(pendingIdx === index) { tasks[i].completed = true; break; }
-                }
+                if(!tasks[i].completed) { pendingIdx++; if(pendingIdx === index) { tasks[i].completed = true; break; } }
             }
             saveData(); renderTasks();
         }
@@ -619,13 +616,9 @@
             event.target.classList.add('active');
         }
 
-        // ================= CALCULADORA INTEGRADA =================
         function initCalculator() {
             const inputs = document.getElementById('calcForm').querySelectorAll('input');
-            inputs.forEach(input => {
-                input.addEventListener('input', updateCalculator);
-                input.addEventListener('change', updateCalculator);
-            });
+            inputs.forEach(input => { input.addEventListener('input', updateCalculator); input.addEventListener('change', updateCalculator); });
             updateCalculator();
         }
 
@@ -640,24 +633,17 @@
             if (total === 0 && !c('calc_mascotas')) { document.getElementById('calc_resultado').innerText = "$0.00"; return; }
 
             if (c('calc_mudanza')) total *= 1.20;
-            
             const tamano = document.querySelector('input[name="calc_tamano"]:checked');
             if (tamano) total *= parseFloat(tamano.value);
-            
             if (c('calc_mascotas')) total += 15;
-            
             const desc = document.querySelector('input[name="calc_descuento"]:checked');
             if (desc) total *= (1 - (parseFloat(desc.value) / 100));
 
             document.getElementById('calc_resultado').innerText = `$${total.toFixed(2)}`;
         }
 
-        function resetCalculator() {
-            document.getElementById('calcForm').reset();
-            updateCalculator();
-        }
+        function resetCalculator() { document.getElementById('calcForm').reset(); updateCalculator(); }
 
-        // ================= CHAT IA =================
         function addSystemMessage(text) { const m = document.getElementById('messages'); m.innerHTML += `<div class="message system">${text}</div>`; m.scrollTop = m.scrollHeight; }
         function addUserMessage(text) { const m = document.getElementById('messages'); m.innerHTML += `<div class="message user">${text}</div>`; m.scrollTop = m.scrollHeight; }
         function addAssistantMessage(text) { const m = document.getElementById('messages'); m.innerHTML += `<div class="message assistant">${text}</div>`; m.scrollTop = m.scrollHeight; }
@@ -676,18 +662,17 @@
 
             const systemContext = `
 Eres la Secretaria Ejecutiva de una Empresa de Limpieza.
-Cliente actual seleccionado: ${currentClient !== null ? clients[currentClient].name : 'Ninguno (indícalo si te piden agendar y no hay cliente seleccionado)'}
+Cliente actual seleccionado: ${currentClient !== null ? clients[currentClient].name : 'Ninguno (indícalo si te piden agendar)'}
 
 INSTRUCCIONES DE PRECIOS EXACTOS (Cotiza mentalmente):
 - Base: Dormitorio $25, Baño $25, Cocina $25, Sala $25, Ventana extra $5.
-- Extras: Interior Refri $25, Horno $25, Gabinetes $50. Mascotas (Suma $15 al final de todo).
+- Extras: Interior Refri $25, Horno $25, Gabinetes $50. Mascotas (Suma $15 al final).
 - Multiplicadores: Mudanza/Deep Clean (+20%). Tamaño Casa: Pequeña (+10%), Mediana (+15%), Grande (+20%).
 - Descuentos por frecuencia: Mensual (-5%), Quincenal (-10%), Semanal (-15%).
-Muestra el desglose amablemente y da el total final.
 
-Si el usuario pide agendar o guardar algo, extrae un JSON oculto AL FINAL del mensaje:
+Si el usuario pide agendar, extrae JSON oculto AL FINAL:
 - Tarea: {"accion": "tarea", "titulo": "...", "dias": numero}
-- Cita: {"accion": "cita", "titulo": "...", "fecha_iso": "YYYY-MM-DDTHH:MM:SS"} (Asume que hoy es ${new Date().toLocaleDateString()}).
+- Cita: {"accion": "cita", "titulo": "...", "fecha_iso": "YYYY-MM-DDTHH:MM:SS"} (Asume hoy es ${new Date().toLocaleDateString()}).
 `;
 
             try {
@@ -704,7 +689,6 @@ Si el usuario pide agendar o guardar algo, extrae un JSON oculto AL FINAL del me
                     reply = reply.replace(jsonMatch[0], '').trim();
                     await ejecutarAccion(JSON.parse(jsonMatch[0]));
                 }
-
                 addAssistantMessage(reply || "Entendido.");
             } catch (error) {
                 addAssistantMessage(`❌ Error de IA. Revisa tu conexión o tu API Key.`);
@@ -729,11 +713,11 @@ Si el usuario pide agendar o guardar algo, extrae un JSON oculto AL FINAL del me
                 
                 if (googleAccessToken) {
                     addSystemMessage(`⏳ Enviando cita a Google Calendar...`);
-                    const success = await createEventInGoogleCalendar(data.titulo, date.toISOString(), `Cita con: ${clientName}\nDetalles: ${clientDetails}\n- Agendado vía Asistente IA`);
+                    const success = await createEventInGoogleCalendar(data.titulo, date.toISOString(), `Cita con: ${clientName}\nDetalles: ${clientDetails}`);
                     if (success) addSystemMessage(`✅ ¡Evento confirmado en tu Google Calendar!`);
                     else addSystemMessage(`❌ Hubo un fallo sincronizando con Google.`);
                 } else {
-                    addSystemMessage(`⚠️ Cita guardada localmente. (Presiona 'Conectar con Google Calendar' si quieres enviarla a tu cuenta real).`);
+                    addSystemMessage(`⚠️ Cita guardada localmente.`);
                 }
             }
         }
